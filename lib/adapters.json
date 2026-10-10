@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "description": "agentlog adapter registry — declare one entry per capturable agent",
+  "adapters": [
+    {
+      "agent": "omp",
+      "method": "extension",
+      "hook_path": "~/.omp/agent/extensions/agentlog.ts",
+      "events": ["session", "tool", "approval", "model"],
+      "watch": "hooks"
+    },
+    {
+      "agent": "claude",
+      "method": "hooks",
+      "hook_path": "~/.claude/hooks/agentlog-hook.sh",
+      "events": ["session", "tool"],
+      "watch": "hooks"
+    }
+  ]
+}

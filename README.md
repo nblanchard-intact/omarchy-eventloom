@@ -31,14 +31,14 @@ Requirements: `bun` **or** `node >= 20` (bun preferred — it needs no
 ## Usage
 
 ```sh
-agentlog append agent.note.added --actor omp --payload '{"text":"hello"}'
-agentlog tail --limit 20 --actor omp
-agentlog verify        # hash-chain integrity; exit 2 on tamper
-agentlog inspect       # adapter install status
-agentlog path          # today's shard path
+eventloom append agent.note.added --actor omp --payload '{"text":"hello"}'
+eventloom tail --limit 20 --actor omp
+eventloom verify        # hash-chain integrity; exit 2 on tamper
+eventloom inspect       # adapter install status
+eventloom path          # today's shard path
 ```
 
-Omarchy-style aliases: `omarchy-agent-log tail`, `omarchy-agent-inspect`.
+Omarchy-style aliases: `omarchy-eventloom`, `omarchy-eventloom-inspect`.
 
 ## Event vocabulary
 
@@ -57,11 +57,11 @@ Envelope is eventloom-strict; agent-specific detail lives in `payload`.
 
 ## Adapters
 
-Declared in `lib/adapters.json`; `agentlog inspect` reports what's installed.
+Declared in `lib/adapters.json`; `eventloom inspect` reports what's installed.
 
-- **omp** — `extensions/agentlog.ts`, installed to `~/.omp/agent/extensions/`
+- **omp** — `extensions/eventloom.ts`, installed to `~/.omp/agent/extensions/`
   when omp exists. Captures lifecycle, tools, approvals, model events.
-- **claude** — `hooks/agentlog-hook.sh`, registered idempotently in
+- **claude** — `hooks/eventloom-hook.sh`, registered idempotently in
   `~/.claude/settings.json` (`SessionStart`, `Stop`, `PostToolUse`).
 
 Community adapters: add a hook file, register a manifest entry with
@@ -73,10 +73,21 @@ contract — no proxies.
 
 - Redaction before sealing (the chain is irreversible): API keys, tokens,
   JWTs, PEM blocks, Slack/GitHub tokens.
-- `AGENTLOG_MODE=full` (default) | `summary` (200-char excerpts) |
+- `EVENTLOOM_MODE=full` (default) | `summary` (200-char excerpts) |
   `metadata` (structure only, no content).
-- `AGENTLOG_DISABLE=1` opts any agent out.
+- `EVENTLOOM_DISABLE=1` opts any agent out.
 - Local-only by default. Logs are user-owned; `rm` the shard to purge.
+
+## Visualization
+
+The **Tapestry** is a read-only, vertical session history: each session grows
+upward from its start, widens and narrows with sampled activity, joins resumed
+segments, and marks handoffs and completion. Start it with
+`eventloom tapestry --days 7`; it serves locally at http://127.0.0.1:4747.
+Use `eventloom tapestry --demo` for a representative in-memory weave without
+reading or changing your logs.
+The implemented projection is specified in
+[`docs/tapestry-runtime.md`](docs/tapestry-runtime.md).
 
 ## Uninstall
 

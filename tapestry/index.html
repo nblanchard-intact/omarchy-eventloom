@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eventloom Tapestry</title>
+<style>
+  :root { color-scheme: dark; --ink:#d9ddd6; --mute:#8b9494; --panel:#14191ddd; --line:#cfc4ad22; }
+  * { box-sizing:border-box } body { margin:0; overflow:hidden; background:#101319; color:var(--ink); font:12px ui-monospace,SFMono-Regular,Menlo,monospace }
+  canvas { display:block; width:100vw; height:100vh; cursor:grab } canvas:active { cursor:grabbing }
+  header { position:fixed; z-index:2; top:28px; left:34px; pointer-events:none } h1 { font:32px Georgia,serif; margin:0 0 7px; color:#f1e7d4 } header p { margin:0; color:#9aa2a4; letter-spacing:.16em; font-size:10px }
+  #hint { position:fixed; right:34px; top:36px; color:#7d8788; letter-spacing:.08em; font-size:10px }
+  #panel { position:fixed; right:28px; top:126px; width:min(360px,calc(100vw - 56px)); min-height:120px; padding:20px; border:1px solid #d9d1c333; border-left:4px solid #d5e9b3; border-radius:10px; background:var(--panel); backdrop-filter:blur(10px); box-shadow:0 18px 50px #0005; transform:translateX(calc(100% + 36px)); transition:transform .18s ease }
+  #panel.show { transform:none } #panel h2 { font-size:13px; margin:0 0 9px; color:#e7edcf } #panel p { color:#abb3b2; line-height:1.6; margin:4px 0 } #panel code { color:#788486 }
+  #empty { position:fixed; inset:0; display:grid; place-items:center; color:#aeb5b2; font:16px Georgia,serif; pointer-events:none } #empty small { display:block; margin-top:10px; font:10px ui-monospace,monospace; color:#697374; letter-spacing:.08em; text-align:center }
+</style>
+<header><h1>Tapestry</h1><p>SESSIONS GROW UPWARD FROM THEIR START</p></header>
+<div id="hint">drag to pan · wheel to zoom · select a session</div>
+<canvas id="cloth"></canvas><div id="empty" hidden>Nothing woven yet.<small>Start an agent session, then reload this read-only view.</small></div>
+<aside id="panel"></aside><script type="module" src="/weave.js"></script>
+</html>

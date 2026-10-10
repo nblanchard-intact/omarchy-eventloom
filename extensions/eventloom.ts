@@ -1,4 +1,4 @@
-// agentlog omp adapter — captures omp session lifecycle, tool calls, approvals,
+// eventloom omp adapter — captures omp session lifecycle, tool calls, approvals,
 // and model events into the Omarchy universal agent log (eventloom hash chain).
 // Installed beside the herdr extension; follows the same plugin interface.
 // @ts-nocheck
@@ -6,10 +6,10 @@
 import { execFile } from "node:child_process";
 
 const HOME = process.env.HOME ?? "";
-const AGENTLOG = `${HOME}/.local/bin/agentlog`;
+const EVENTLOOM = `${HOME}/.local/bin/eventloom`;
 
 function enabled() {
-  return HOME !== "" && process.env.AGENTLOG_DISABLE !== "1";
+  return HOME !== "" && process.env.EVENTLOOM_DISABLE !== "1";
 }
 
 function cwdOf(ctx) {
@@ -18,7 +18,7 @@ function cwdOf(ctx) {
 
 // Fire-and-forget: the agent path must never block on logging (consideration 6).
 function append(type, payload) {
-  execFile(AGENTLOG, ["append", type, "--actor", "omp", "--payload", JSON.stringify(payload)], { timeout: 5000 }, () => {}).unref?.();
+  execFile(EVENTLOOM, ["append", type, "--actor", "omp", "--payload", JSON.stringify(payload)], { timeout: 5000 }, () => {}).unref?.();
 }
 
 export default function (pi) {

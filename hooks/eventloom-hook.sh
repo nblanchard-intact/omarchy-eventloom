@@ -1,8 +1,8 @@
 #!/bin/sh
-# agentlog claude adapter — reads hook JSON from stdin, appends to the universal agent log.
-# Opt-out: AGENTLOG_DISABLE=1. Managed by the agentlog prototype; reinstalling overwrites.
-command -v agentlog >/dev/null 2>&1 || exit 0
-[ "${AGENTLOG_DISABLE:-0}" = "1" ] && exit 0
+# eventloom claude adapter — reads hook JSON from stdin, appends to the universal agent log.
+# Opt-out: EVENTLOOM_DISABLE=1. Managed by the eventloom prototype; reinstalling overwrites.
+command -v eventloom >/dev/null 2>&1 || exit 0
+[ "${EVENTLOOM_DISABLE:-0}" = "1" ] && exit 0
 
 event="$1"
 [ -n "$event" ] || exit 0
@@ -27,8 +27,8 @@ payload="$(printf '%s' "$parsed" | python3 -c 'import json,sys; print(json.dumps
 thread="$(printf '%s' "$parsed" | python3 -c 'import json,sys; print("claude-" + (json.load(sys.stdin).get("session_id") or "unknown"))')"
 
 case "$event" in
-  session_start) agentlog append agent.session.started  --actor claude --thread "$thread" --payload "$payload" >/dev/null 2>&1 & ;;
-  session_stop)  agentlog append agent.session.completed --actor claude --thread "$thread" --payload "$payload" >/dev/null 2>&1 & ;;
-  post_tool)     agentlog append agent.tool.completed   --actor claude --thread "$thread" --payload "$payload" >/dev/null 2>&1 & ;;
+  session_start) eventloom append agent.session.started  --actor claude --thread "$thread" --payload "$payload" >/dev/null 2>&1 & ;;
+  session_stop)  eventloom append agent.session.completed --actor claude --thread "$thread" --payload "$payload" >/dev/null 2>&1 & ;;
+  post_tool)     eventloom append agent.tool.completed   --actor claude --thread "$thread" --payload "$payload" >/dev/null 2>&1 & ;;
 esac
 exit 0

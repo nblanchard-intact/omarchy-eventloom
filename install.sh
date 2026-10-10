@@ -4,7 +4,7 @@
 set -eu
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
-LIB_DIR="$HOME/.local/lib/agentlog"
+LIB_DIR="$HOME/.local/lib/eventloom"
 BIN_DIR="$HOME/.local/bin"
 LOG_DIR="$HOME/.local/state/omarchy/agents/logs"
 
@@ -26,35 +26,39 @@ say "runtime: $RUNTIME"
 
 # --- 2. files ----------------------------------------------------------------
 mkdir -p "$LIB_DIR" "$BIN_DIR" "$LOG_DIR"
-cp "$REPO_DIR/lib/engine.mjs" "$REPO_DIR/lib/agentlog.mjs" "$REPO_DIR/lib/adapters.json" "$LIB_DIR/"
-cp "$REPO_DIR/bin/agentlog" "$REPO_DIR/bin/omarchy-agent-log" "$REPO_DIR/bin/omarchy-agent-inspect" "$BIN_DIR/"
-chmod +x "$BIN_DIR/agentlog" "$BIN_DIR/omarchy-agent-log" "$BIN_DIR/omarchy-agent-inspect"
-say "installed cli -> $BIN_DIR/agentlog"
+cp "$REPO_DIR/lib/engine.mjs" "$REPO_DIR/lib/eventloom.mjs" "$REPO_DIR/lib/adapters.json" "$LIB_DIR/"
+mkdir -p "$LIB_DIR/../tapestry"
+cp "$REPO_DIR/tapestry/server.mjs" "$REPO_DIR/tapestry/index.html" "$REPO_DIR/tapestry/weave.js" "$LIB_DIR/../tapestry/"
+cp "$REPO_DIR/bin/eventloom" "$REPO_DIR/bin/omarchy-eventloom" "$REPO_DIR/bin/omarchy-eventloom-inspect" "$BIN_DIR/"
+chmod +x "$BIN_DIR/eventloom" "$BIN_DIR/omarchy-eventloom" "$BIN_DIR/omarchy-eventloom-inspect"
+say "installed cli -> $BIN_DIR/eventloom"
 
-# --- 3. node fallback needs the pinned runtime; bun does not -----------------
-if [ "$RUNTIME" = "node" ] && [ ! -d "$LIB_DIR/node_modules/@eventloom/runtime" ]; then
-  say "node selected: installing @eventloom/runtime (one-time)"
-  (cd "$LIB_DIR" && npm install --no-fund --no-audit --silent @eventloom/runtime@1)
+# --- 3. always provision the node fallback ----------------------------------
+# A graphical/login shell may discover Bun while an interactive terminal only
+# has Node on PATH. Keep both launch paths valid after one installation.
+if [ ! -d "$LIB_DIR/node_modules/@eventloom/runtime" ]; then
+  say "installing @eventloom/runtime for the node fallback"
+  npm install --prefix "$LIB_DIR" --no-fund --no-audit --silent @eventloom/runtime@1
 fi
 
 # --- 4. omp adapter: only when omp is present --------------------------------
 if [ -d "$HOME/.omp/agent" ] || command -v omp >/dev/null 2>&1; then
   mkdir -p "$HOME/.omp/agent/extensions"
-  cp "$REPO_DIR/extensions/agentlog.ts" "$HOME/.omp/agent/extensions/"
+  cp "$REPO_DIR/extensions/eventloom.ts" "$HOME/.omp/agent/extensions/"
   say "omp adapter installed (loads on next omp session)"
 fi
 
 # --- 5. claude adapter: idempotent settings merge ----------------------------
-HOOK="$HOME/.claude/hooks/agentlog-hook.sh"
+HOOK="$HOME/.claude/hooks/eventloom-hook.sh"
 if [ -d "$HOME/.claude" ] || command -v claude >/dev/null 2>&1; then
   mkdir -p "$HOME/.claude/hooks"
-  cp "$REPO_DIR/hooks/agentlog-hook.sh" "$HOOK"
+  cp "$REPO_DIR/hooks/eventloom-hook.sh" "$HOOK"
   chmod +x "$HOOK"
-  "$HOME/.local/bin/agentlog" wire-claude-hooks "$HOOK"
+  "$HOME/.local/bin/eventloom" wire-claude-hooks "$HOOK"
   say "claude adapter wired (SessionStart/Stop/PostToolUse)"
 fi
 
 # --- 6. acceptance gate ------------------------------------------------------
-"$HOME/.local/bin/agentlog" verify >/dev/null 2>&1 || true   # no shard yet = ok
-"$HOME/.local/bin/agentlog" inspect
+"$HOME/.local/bin/eventloom" verify >/dev/null 2>&1 || true   # no shard yet = ok
+"$HOME/.local/bin/eventloom" inspect
 say "install complete."

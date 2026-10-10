@@ -1,0 +1,21 @@
+#!/bin/sh
+# eventloom launcher — prefers bun (no node_modules needed: auto-install from
+# bun's global cache), falls back to node (requires the pinned node_modules).
+set -e
+
+LIB_DIR="$HOME/.local/lib/eventloom"
+
+if command -v bun >/dev/null 2>&1; then
+  exec bun "$LIB_DIR/eventloom.mjs" "$@"
+fi
+
+if command -v node >/dev/null 2>&1; then
+  if [ ! -d "$LIB_DIR/node_modules/@eventloom/runtime" ]; then
+    echo "eventloom: node selected but runtime not installed; run install.sh or install bun" >&2
+    exit 1
+  fi
+  exec node "$LIB_DIR/eventloom.mjs" "$@"
+fi
+
+echo "eventloom: requires bun or node (neither found)" >&2
+exit 1
